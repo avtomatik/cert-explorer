@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import Any, Dict, Iterable, Protocol
+from typing import Any, Iterable, Protocol
 
 
 class CertificateSource(Protocol):
     """Provides raw certificates as hex strings."""
 
-    def get_raw_certificates(self) -> Iterable[Dict[str, Any]]: ...
+    def get_raw_certificates(self) -> Iterable[dict[str, Any]]: ...
 
 
 class CertificateWriter(Protocol):

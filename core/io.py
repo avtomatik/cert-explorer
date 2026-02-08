@@ -1,17 +1,16 @@
 import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Iterable
+from typing import Any, Iterable
 
 
 class JSONCertificateSource:
     def __init__(self, json_path: Path):
         self.json_path = json_path
 
-    def get_raw_certificates(self) -> Iterable[Dict[str, Any]]:
+    def get_raw_certificates(self) -> Iterable[dict[str, Any]]:
         with self.json_path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data
+            return json.load(f)
 
 
 class FileCertificateWriter:

@@ -1,7 +1,7 @@
 [project]
 name = "cert-explorer"
 version = "0.1.0"
-description = "Add your description here"
+description = "Convert raw hexadecimal certificate data into human-readable format."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

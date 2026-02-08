@@ -1,35 +1,130 @@
 # CertExplorer
 
-A Python tool to convert raw hexadecimal certificate data into a human-readable format.
+CertExplorer is a small, modular Python tool for **processing raw hexadecimal X.509 certificates** at scale.
+
+It reads certificates from a JSON dump, parses each raw hex certificate, prints key metadata, and writes each certificate to disk in **DER format** using **atomic file writes**.
+
+The codebase is structured around **SOLID principles**, uses `typing.Protocol` instead of ABCs, and processes each certificate **independently and safely**.
+
+---
+
+## Project Structure
+
+```
+.
+├── core
+│   ├── interfaces.py   # Protocol definitions (Source / Writer)
+│   ├── io.py           # Concrete I/O implementations
+│   ├── parser.py       # Certificate parsing & inspection
+│   └── processor.py   # Atomic certificate processing logic
+├── data
+│   └── .gitkeep        # JSON input directory (ignored by git)
+├── main.py             # Application entry point
+├── pyproject.toml
+├── uv.lock
+└── README.md
+```
+
+---
+
+## Requirements
+
+* Python 3.10+
+* [`uv`](https://github.com/astral-sh/uv)
+* `cryptography`
+
+Dependencies are managed via **uv**, not `pip`.
+
+---
 
 ## Installation
+
+Sync the environment using `uv`:
+
 ```bash
-pip install -r requirements.txt
-````
+uv sync
+```
+
+This will create a virtual environment and install all dependencies declared in `pyproject.toml`.
+
+---
+
+## Input Format
+
+CertExplorer expects a JSON file at:
+
+```
+data/dump.json
+```
+
+Example structure:
+
+```json
+[
+  {
+    "RawCertificate": "0x3082030a02820301..."
+  },
+  {
+    "RawCertificate": "0x3082025f308201c7..."
+  }
+]
+```
+
+Each entry is processed **independently**.
+
+---
 
 ## Usage
 
-```python
-import binascii
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
+Run the main application with:
 
-# Convert hex to bytes
-hex_cert = "<your-hex-certificate>"
-cert_bytes = binascii.unhexlify(hex_cert)
-
-# Load certificate
-cert = x509.load_pem_x509_certificate(cert_bytes, default_backend())
-
-# Print human-readable certificate info
-print(cert.subject)
-print(cert.issuer)
-print(cert.not_valid_before)
-print(cert.not_valid_after)
+```bash
+uv run python main.py
 ```
+
+What happens:
+
+* Reads certificates from `data/dump.json`
+* Parses each `RawCertificate`
+* Prints certificate metadata:
+
+  * subject
+  * issuer
+  * validity window (UTC)
+* Writes each certificate to:
+
+  ```
+  certificates/cert_000000.der
+  certificates/cert_000001.der
+  ```
+* Uses **atomic writes** to avoid partial or corrupt files
+* Skips invalid entries without stopping the batch
+
+---
+
+## Design Notes
+
+* **Atomic processing**: each certificate is processed in isolation
+* **Atomic file writes**: temporary file → rename
+* **SOLID architecture**:
+
+  * `CertificateSource` and `CertificateWriter` are defined via `typing.Protocol`
+  * Easy to add new input sources (DB, API) or outputs (ZIP, S3, etc.)
+* **Test-friendly**: components are loosely coupled
+
+---
 
 ## Contributing
 
-Feel free to open an issue or pull request for improvements!
+Contributions are welcome!
 
-```
+Ideas for extensions:
+
+* Alternative certificate sources (CSV, database, API)
+* Additional output formats (PEM, ZIP bundles)
+* Structured logging
+* Metrics or reporting
+
+Feel free to open an issue or submit a pull request.
+
+---
