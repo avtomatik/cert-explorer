@@ -1,10 +1,13 @@
-def write_cert_to_file(cert_bytes: bytes, filename: str):
+from pathlib import Path
+
+
+def write_cert_to_file(cert_bytes: bytes, file_path: Path) -> Path:
     """
     Writes the certificate bytes to a file.
-    
+
     Args:
         cert_bytes (bytes): The certificate's byte representation.
-        filename (str): The output file name.
+        file_path (pathlib.Path): The output file path.
     """
-    with open(filename, "wb") as f:
+    with file_path.open("wb") as f:
         f.write(cert_bytes)
